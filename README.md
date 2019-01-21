@@ -10,6 +10,7 @@ git cms-init <br>
 git clone https://github.com/cmkuo/HiggsAnalysis.git <br>
 git clone -b cmsdas2019 https://github.com/pmeridian/ggAnalysis.git <br>
 git cms-merge-topic cms-egamma:EgammaPostRecoTools_940 <br>
+git cms-merge-topic cms-egamma/EgammaID_949 <br>
 git cms-merge-topic cms-met:METFixEE2017_949 <br>
 scram b -j 8 <br>
 
