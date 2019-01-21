@@ -1,10 +1,10 @@
 #### Current production tag : 
 #### Newest tag for testing : 
-#### Note that the current head version can be run with CMSSW_9_4_9
+#### Note that the current head version can be run with CMSSW_9_4_10
 
 ##### To work with CMSSW_9_4_9 and head version, you do :
-cmsrel CMSSW_9_4_9_cand2 <br>
-cd CMSSW_9_4_9_cand2/src <br>
+cmsrel CMSSW_9_4_10 <br>
+cd CMSSW_9_4_10/src <br>
 cmsenv <br>
 git cms-init <br>
 git cms-merge-topic cms-egamma:EgammaPostRecoTools_940 <br>
@@ -13,7 +13,7 @@ git cms-merge-topic cms-met:METFixEE2017_949 <br>
 scram b -j 8 <br>
 cd $CMSSW_BASE/src <br>
 git clone https://github.com/cmkuo/HiggsAnalysis.git <br>
-git clone -b 94X https://github.com/cmkuo/ggAnalysis.git <br>
+git clone -b cmsdas2019 https://github.com/pmeridian/ggAnalysis.git <br>
 scram b -j8 <br>
 
 The above code stores the decision in 64 integer. Each bit represents a decision<br>
