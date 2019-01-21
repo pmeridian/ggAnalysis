@@ -1,8 +1,8 @@
 #### Current production tag : 
 #### Newest tag for testing : 
-#### Note that the current head version can be run with CMSSW_9_4_10
+#### This version can be run using CMSSW_9_4_10
 
-##### To work with CMSSW_9_4_9 and head version, you do :
+##### To work with CMSSW_9_4_10:
 cmsrel CMSSW_9_4_10 <br>
 cd CMSSW_9_4_10/src <br>
 cmsenv <br>
