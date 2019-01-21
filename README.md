@@ -14,6 +14,10 @@ git cms-merge-topic cms-egamma:EgammaID_949 <br>
 git cms-merge-topic cms-met:METFixEE2017_949 <br>
 scram b -j 8 <br>
 
+Test ntuples production:
+cd ggAnalysis/ggNtuplizer/test/ <br>
+cmsRun run_data2017_94X.py <br>
+
 Some informations on stored IDs.
 eleID is stored in 64bit integer. Each bit represents the output of an ID selections<br>
 for ELECRON ID stores 5 official 94x ID outputs: 5 IDs (Veto, Loose, Medium, Tight and HEEP) so only 5 bits are imp for us (59 bits of this integer  we are not using so may be we can change that to 16 bit integer later)<br>
