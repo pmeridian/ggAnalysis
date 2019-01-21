@@ -7,14 +7,11 @@ cmsrel CMSSW_9_4_10 <br>
 cd CMSSW_9_4_10/src <br>
 cmsenv <br>
 git cms-init <br>
-git cms-merge-topic cms-egamma:EgammaPostRecoTools_940 <br>
-scram b -j 8 <br>
-git cms-merge-topic cms-met:METFixEE2017_949 <br>
-scram b -j 8 <br>
-cd $CMSSW_BASE/src <br>
 git clone https://github.com/cmkuo/HiggsAnalysis.git <br>
 git clone -b cmsdas2019 https://github.com/pmeridian/ggAnalysis.git <br>
-scram b -j8 <br>
+git cms-merge-topic cms-egamma:EgammaPostRecoTools_940 <br>
+git cms-merge-topic cms-met:METFixEE2017_949 <br>
+scram b -j 8 <br>
 
 The above code stores the decision in 64 integer. Each bit represents a decision<br>
 for ELECRON ID: 5 IDs (Veto, Loose, Medium, Tight and HEEP) so only 5 bits are imp for us (59 bits of this integer  we are not using so may be we can change that to 16 bit integer later)<br>
