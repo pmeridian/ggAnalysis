@@ -14,7 +14,7 @@ git cms-merge-topic cms-egamma:EgammaID_949 <br>
 git cms-merge-topic cms-met:METFixEE2017_949 <br>
 scram b -j 8 <br>
 
-Test ntuples production:
+Test ntuples production: <br>
 cd ggAnalysis/ggNtuplizer/test/ <br>
 cmsRun run_data2017_94X.py <br>
 
