@@ -5,6 +5,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--input',dest='input')
 parser.add_argument('--output',dest='output')
+parser.add_argument('--events',dest='events')
 parser.add_argument('--isMC',dest='isMC',action='store_true',default=False)
 args = parser.parse_args()
 
@@ -28,12 +29,13 @@ def has_mcEle_match(iEle):
                          chain_in.elePhi[iEle], chain_in.eleEn[iEle])
 
     for mc in range(chain_in.nMC):
-        if abs(chain_in.mcPID[mc]) == 11 and chain_in.mcPt[mc] > 15.:
-            mc_vec = ROOT.TLorentzVector()
-            mc_vec.SetPtEtaPhiE(chain_in.mcPt[mc], chain_in.mcEta[mc], chain_in.mcPhi[mc], chain_in.mcE[mc])
-            delta_r = ele_vec.DeltaR(mc_vec)
-            if delta_r < 0.05:
-                return True
+        if abs(chain_in.mcPID[mc]) != 11 or chain_in.mcPt[mc] < 15. or chain_in.mcStatus[mc]!=1:
+            continue
+        mc_vec = ROOT.TLorentzVector()
+        mc_vec.SetPtEtaPhiE(chain_in.mcPt[mc], chain_in.mcEta[mc], chain_in.mcPhi[mc], chain_in.mcE[mc])
+        delta_r = ele_vec.DeltaR(mc_vec)
+        if delta_r < 0.05:
+            return True
     return False
 
 # return the class for the electron ['eleMC', 'eleFake' ] for MC [ 'eleData' ] in Data
@@ -49,7 +51,7 @@ def eType(iEle):
 sw = ROOT.TStopwatch()
 sw.Start()
 
-max_entries = 100000
+max_entries = -1 if args.events is None else int(args.events)
 
 # Input ggNtuple
 chain_in = ROOT.TChain('ggNtuplizer/EventTree')
@@ -59,7 +61,7 @@ chain_in.Add(args.input)
 branches = ["nEle", "elePt", "eleEta", "elePhi", "eleEn", "eledPhiAtVtx", "eleHoverE", "eleEoverPInv", "eleConvVeto", "eleSigmaIEtaIEtaFull5x5",
             "eleSCEta", "eleSCPhi", "eleSCRawEn" ]
 if ( args.isMC ):
-    branches.extend( [ "nMC", "mcPt", "mcEta", "mcPhi", "mcE", "mcPID"] )
+    branches.extend( [ "nMC", "mcPt", "mcEta", "mcPhi", "mcE", "mcPID","mcStatus"] )
 
 chain_in.SetBranchStatus("*", 0)
 for b in branches:
@@ -81,7 +83,7 @@ for eleType in eleTypes:
         histos['h_'+eleType+'_'+det+'_sigmaIEtaIEta'] = ROOT.TH1D('h_'+eleType+'_'+det+'_sigmaIEtaIEta', 'Electron #sigma_{i#eta i#eta}', 100, 0.0, 0.1)
        
 #Loop over all the events in the input ntuple
-for j_entry in range(min(max_entries,n_entries)):
+for j_entry in range(min(max_entries,n_entries) if max_entries>0 else n_entries):
     i_entry = chain_in.LoadTree(j_entry)
     if i_entry < 0:
         break

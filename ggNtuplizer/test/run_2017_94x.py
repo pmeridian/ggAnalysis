@@ -8,6 +8,16 @@ options.register('datasets',
                  VarParsing.multiplicity.list,
                  VarParsing.varType.string,
                  "Input dataset(s)")
+options.register('runs',
+                 '',
+                 VarParsing.multiplicity.list,
+                 VarParsing.varType.int,
+                 "specific run numbers")
+options.register('isMC',
+                 False,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.bool,
+                 "isMC")
 options.register('output',
                  '',
                  VarParsing.multiplicity.singleton,
@@ -16,18 +26,26 @@ options.register('output',
 options.maxEvents = -1
 options.parseArguments()
 
+isMC = options.isMC
+
 files = []
 files2 = []
 for dataset in options.datasets:
     print('>> Creating list of files from: \n'+dataset)
-    query = "-query='file dataset="+dataset+"'"
-    if options.debug:
-        print(query)
-    lsCmd = subprocess.Popen(['dasgoclient '+query+' -limit=0'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    str_files, err = lsCmd.communicate()
-    files.extend(['root://cms-xrd-global.cern.ch/'+ifile for ifile in str_files.split("\n")])
-    files = [k for k in files if options.pattern in k]
-    files.pop()
+    if (not isMC and len(options.runs)>0):
+        for run in options.runs:
+            print ('>> Run: '+str(run))
+            query = "-query='file dataset="+dataset+" run="+str(run)+"'"
+            lsCmd = subprocess.Popen(['dasgoclient '+query+' -limit=0'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            str_files, err = lsCmd.communicate()
+            files.extend(['root://cms-xrd-global.cern.ch/'+ifile for ifile in str_files.split("\n")])
+            files.pop()
+    else:
+        query = "-query='file dataset="+dataset+"'"
+        lsCmd = subprocess.Popen(['dasgoclient '+query+' -limit=0'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        str_files, err = lsCmd.communicate()
+        files.extend(['root://cms-xrd-global.cern.ch/'+ifile for ifile in str_files.split("\n")])
+        files.pop()
 
 process = cms.Process('ggKit')
 
@@ -43,8 +61,8 @@ if (not isMC):
 else:
     process.GlobalTag = GlobalTag(process.GlobalTag, '94X_mc2017_realistic_v14')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.source = cms.Source(
     "PoolSource",
