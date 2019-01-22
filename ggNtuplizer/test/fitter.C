@@ -1,4 +1,4 @@
-void fitter (TString filename = "plots.root", float startmass = 91) {
+void fitter (TString filename = "plots.root", float startmass = 91.1876) {
   using namespace RooFit;
 
   //  gStyle->SetOptStat(0);
@@ -14,19 +14,19 @@ void fitter (TString filename = "plots.root", float startmass = 91) {
   RooRealVar mass("mass","m_{ee}", 70, 130,"GeV/c^{2}");
 
   //Parameters for Crystal Ball Lineshape 
-  RooRealVar m0("M_{Z}", "Bias", startmass, 70, 130);//,"GeV/c^{2}"); 
+  RooRealVar m0("#DeltaM_{Z}", "Bias", 0, -1., 1);//,"GeV/c^{2}"); 
   RooRealVar sigma("#sigma_{CB}","Width", 1.2,0.1,10);//,"GeV/c^{2}"); 
   RooRealVar cut("#alpha","Cut", 1., 0., 10.); 
   RooRealVar power("#gamma","Power", 1., 0., 10.); 
   RooCBShape CrystalBall("CrystalBall", "A  Crystal Ball Lineshape", mass, m0,sigma, cut, power);
             
   //Parameters for Breit-Wigner Distribution
-  RooRealVar mRes("#DeltaM_{Z}", "Z Resonance  Mass", 0, -0.0021, 0.0021);//,"GeV/c^{2}"); 
-  RooRealVar Gamma("#Gamma_{Z}", "#Gamma", 2.4952, 2.4929, 2.4975);//,"GeV/c^{2}");
+  RooRealVar mRes("M_{Z}", "Z Resonance  Mass", startmass);//,"GeV/c^{2}"); 
+  RooRealVar Gamma("#Gamma_{Z}", "#Gamma", 2.4952);//,"GeV/c^{2}");
   RooBreitWigner BreitWigner("BreitWigner","A Breit-Wigner Distribution",mass,mRes,Gamma);
 
   //Convoluve the BreitWigner and Crystal Ball
-  RooFFTConvPdf ResolutionModel("Convolution","Convolution", mass, CrystalBall, BreitWigner);
+  RooFFTConvPdf ResolutionModel("Convolution","Convolution", mass, BreitWigner,  CrystalBall);
 
   TFile * hFile = new TFile(filename.Data());
   TH1F * DataHist = (TH1F*) hFile->Get("h_elec_zmass");
