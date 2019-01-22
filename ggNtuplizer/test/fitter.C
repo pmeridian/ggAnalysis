@@ -1,4 +1,4 @@
-void fitter (TString filename = "plots.root", float startmass = 91.1876) {
+void fitter (TString filename = "plots.root", TString plotSuffix = "", float startmass = 91.1876) {
   using namespace RooFit;
 
   //  gStyle->SetOptStat(0);
@@ -47,7 +47,10 @@ void fitter (TString filename = "plots.root", float startmass = 91.1876) {
   TPaveText *box = (TPaveText*) plot->findObject("Convolution_paramBox");
   box->SetTextSize(0.022);
   plot->Draw();
-  TString OutPutName = DataHistName + ".png";
-  c1->SaveAs(OutPutName);
-  
+  TString ext[2] = { ".png" , ".pdf"};
+  for (int iext=0;iext<2;++iext)
+    {
+      TString OutPutName = Form("%s_%s%s",DataHist->GetName(),plotSuffix.Data(),ext[iext].Data());
+      c1->SaveAs(OutPutName);
+    }
 }
