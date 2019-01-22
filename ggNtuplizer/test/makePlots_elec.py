@@ -12,6 +12,7 @@ etaAcceptance = {} # fiducial region
 etaAcceptance['EB']= [ 0. , 1.442 ] 
 etaAcceptance['EE']= [ 1.566 , 2.5 ]
 
+# Function to check if the electron belongs to ECAL barrel (EB) or endcap (EE)
 def eleDet(iEle):
     for det in ['EB','EE']:
         if ( 
