@@ -8,6 +8,8 @@ parser.add_argument("-i", "--inputfiles", dest="inputfiles", default=["ggtree_mc
 parser.add_argument("-o", "--outputfile", dest="outputfile", default="plotsZee.root", help="Output file containing plots")
 parser.add_argument("-m", "--maxevents", dest="maxevents", type=int, default=-1, help="Maximum number events to loop over")
 parser.add_argument('--isMC',dest='isMC',action='store_true',default=False)
+parser.add_argument('--EBonly',dest='EBonly',action='store_true',default=False)
+parser.add_argument('--highR9',dest='highR9',action='store_true',default=False)
 parser.add_argument("-t", "--ttree", dest="ttree", default="ggNtuplizer/EventTree", help="TTree Name")
 args = parser.parse_args()
 
@@ -30,13 +32,15 @@ tchain = ROOT.TChain(args.ttree)
 for filename in args.inputfiles: tchain.Add(filename)
 
 # This speeds up processing by only reading the branches (quantities) that we plan to use later
-#branches = ["nEle", "elePt", "eleEta", "elePhi", "eleEn", "eledPhiAtVtx", "eleHoverE", "eleEoverPInv", "eleConvVeto", "eleSigmaIEtaIEtaFull5x5","eleIDbit" 
-#            "eleSCEta", "eleSCPhi", "eleSCRawEn" ]
-#if ( args.isMC ):
-#    branches.extend( [ "nMC", "mcPt", "mcEta", "mcPhi", "mcE", "mcPID","mcStatus"] )
-#tchain.SetBranchStatus("*", 0)
-#for b in branches:
-#    tchain.SetBranchStatus(b, 1)
+branches = ["nEle", "elePt", "eleEta", "elePhi", "eleEn", "eledPhiAtVtx", "eleHoverE", "eleEoverPInv", "eleConvVeto", "eleSigmaIEtaIEtaFull5x5", "eleIDbit", 
+            "eleSCEta", "eleSCPhi", "eleSCRawEn", "eleCalibPt", "eleCalibEn", "eleR9" ]
+if ( args.isMC ):
+    branches.extend( [ "nMC", "mcPt", "mcEta", "mcPhi", "mcE", "mcPID","mcStatus"] )
+
+tchain.SetBranchStatus("*", 0)
+for b in branches:
+    tchain.SetBranchStatus(b, 1)
+
 print 'Total number of events: ' + str(tchain.GetEntries())
 
 #histograms we want
@@ -58,9 +62,11 @@ for ievent,event in enumerate(tchain):
     goodEle=[]
     for i in range(event.nEle):
         if (event.elePt[i])<20: continue
-        if (event.eleIDbit[i]&1)!=1: continue
+        if (event.eleIDbit[i]&2)!=2: continue #Loose (94X) selection
         if abs(event.eleSCEta[i]) > 2.5: continue
         if abs(event.eleSCEta[i]) > 1.442 and abs(event.eleSCEta[i])<1.566: continue
+        if args.EBonly and abs(event.eleSCEta[i]) > 1.442: continue
+        if args.highR9 and event.eleR9[i] < 0.94: continue
 
         #fill histograms for electrons passing selections
         histos['h_elec_pt'].Fill(event.elePt[i])

@@ -11,7 +11,7 @@ void fitter (TString filename = "plots.root", float startmass = 91) {
   c1->SetBorderMode(0);
   
   //Parameter used for mass in both CrystalBall or BreitWigner
-  RooRealVar mass("mass","Mass_{2#gamma}", 70, 130,"GeV/c^{2}");
+  RooRealVar mass("mass","m_{ee}", 70, 130,"GeV/c^{2}");
 
   //Parameters for Crystal Ball Lineshape 
   RooRealVar m0("M_{Z}", "Bias", startmass, 70, 130);//,"GeV/c^{2}"); 
@@ -34,18 +34,18 @@ void fitter (TString filename = "plots.root", float startmass = 91) {
   TString DataHistName = DataHist->GetName();
   DataHistName += "fit";
   RooDataHist data(DataHistName,DataHistName,mass,DataHist);
-  ResolutionModel.fitTo(data,Range(startmass-20,startmass+10));
+  ResolutionModel.fitTo(data,Range(startmass-15,startmass+10));
   RooPlot * plot = mass.frame();
-  data.plotOn(plot,DataError(RooAbsData::None));
+  data.plotOn(plot);
   plot->SetMaximum(1.2*plot->GetMaximum());
   ResolutionModel.plotOn(plot);
-  ResolutionModel.paramOn(plot,Format("NEL",AutoPrecision(1)), Parameters(RooArgSet(m0, sigma, cut, power, mRes, Gamma)), Layout(.15, 0.5, 0.9), ShowConstants(kFALSE));
+  ResolutionModel.paramOn(plot,Format("NEL",AutoPrecision(1)), Parameters(RooArgSet(m0, sigma, cut, power, mRes, Gamma)), Layout(.15, 0.4, 0.9), ShowConstants(kFALSE));
   TString PlotTitle(DataHist->GetTitle());
-  PlotTitle += ";Mass_{2ele} (GeV/c^{2});Number of Weighted Events";
+  PlotTitle += ";m_{ee} (GeV/c^{2});Number of Weighted Events";
   plot->SetTitle(PlotTitle);
-  plot->GetXaxis()->SetRangeUser(0,startmass+20);
+  plot->GetXaxis()->SetRangeUser(startmass-15,startmass+10);
   TPaveText *box = (TPaveText*) plot->findObject("Convolution_paramBox");
-  box->SetTextSize(0.03);
+  box->SetTextSize(0.022);
   plot->Draw();
   TString OutPutName = DataHistName + ".png";
   c1->SaveAs(OutPutName);
