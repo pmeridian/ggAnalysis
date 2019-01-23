@@ -53,9 +53,13 @@ def eType(iEle):
 sw = ROOT.TStopwatch()
 sw.Start()
 
-#return tighest level of eleID passed by the electron manipulating eleIDbit from ntuple
+#return tighest level of cutBased eleID passed by the electron manipulating eleIDbit from ntuple
 def eleID(eleIDbit):
-    for i in range(4,-1,-1):
+    #bit 0 cutBasedElectronID-Fall17-94X-V1-veto 
+    #bit 1 cutBasedElectronID-Fall17-94X-V1-loose 
+    #bit 2 cutBasedElectronID-Fall17-94X-V1-medium 
+    #bit 3 cutBasedElectronID-Fall17-94X-V1-tight 
+    for i in range(3,-1,-1):
         if (eleIDbit>>i&1): #checks the i-th bit of the eleID bit starting from the MSB
             return i+1
     return 0
