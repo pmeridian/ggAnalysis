@@ -50,13 +50,13 @@ histos={}
 for key, value in f.iteritems():
     histos[key]=Map(value)
 
-#print histos
-sel =  [ 'eleID' ] #first item is supposed to be the reference selection, in this case no selection
+#different selections for which you want to compute efficiency
+sel =  [ 'eleID' ] 
 
 c_eff = ROOT.TCanvas('c_eff', '', 580, 620)
 c_eff.SetGrid()
 
-g_roc={}
+g_eff={}
 
 ranges={}
 ranges['pt']=[ 20, 70. ]
@@ -68,18 +68,17 @@ axisT['pt']= 'p_{T} [GeV]'
 axisT['eta']= '#eta' 
 axisT['phi']= '#phi' 
 
-
 for var_name in sel:
     for det in ['EB','EE']:
         for t in [ 'pt','eta', 'phi']:
-            
-            g_roc[det+'_'+t+'_'+var_name] = ROOT.TGraphAsymmErrors( histos['sig']['h_eleMC_'+det+'_'+t+'_'+var_name], histos['sig']['h_eleMC_'+det+'_'+t])
-            g_roc[det+'_'+t+'_'+var_name].GetXaxis().SetRangeUser(ranges[t][0],ranges[t][1])
-            g_roc[det+'_'+t+'_'+var_name].GetYaxis().SetRangeUser(0.,1.2)
-            g_roc[det+'_'+t+'_'+var_name].GetXaxis().SetTitle(axisT[t])
-            g_roc[det+'_'+t+'_'+var_name].GetYaxis().SetTitle('Efficiency')
-            g_roc[det+'_'+t+'_'+var_name].SetLineWidth(2)
-            g_roc[det+'_'+t+'_'+var_name].SetMarkerStyle(24)
-            g_roc[det+'_'+t+'_'+var_name].SetTitle( 'Eff vs '+ t + ' ('+det+')' )
-            g_roc[det+'_'+t+'_'+var_name].Draw('AP')
+            #doing the ratios of the histograms to get the efficiency (e.g. PASS='h_eleMC_EB_pt_eleID',TOTAL='h_eleMC_EB_pt')
+            g_eff[det+'_'+t+'_'+var_name] = ROOT.TGraphAsymmErrors( histos['sig']['h_eleMC_'+det+'_'+t+'_'+var_name], histos['sig']['h_eleMC_'+det+'_'+t])
+            g_eff[det+'_'+t+'_'+var_name].GetXaxis().SetRangeUser(ranges[t][0],ranges[t][1])
+            g_eff[det+'_'+t+'_'+var_name].GetYaxis().SetRangeUser(0.,1.2)
+            g_eff[det+'_'+t+'_'+var_name].GetXaxis().SetTitle(axisT[t])
+            g_eff[det+'_'+t+'_'+var_name].GetYaxis().SetTitle('Efficiency')
+            g_eff[det+'_'+t+'_'+var_name].SetLineWidth(2)
+            g_eff[det+'_'+t+'_'+var_name].SetMarkerStyle(24)
+            g_eff[det+'_'+t+'_'+var_name].SetTitle( 'Eff vs '+ t + ' ('+det+')' )
+            g_eff[det+'_'+t+'_'+var_name].Draw('AP')
             saveCanvas(c_eff,'eff_' + det + '_' + t + '_' + var_name)
