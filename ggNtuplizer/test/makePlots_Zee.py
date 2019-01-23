@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 
 import argparse
-
-import argparse
 parser = argparse.ArgumentParser(description="A simple ttree plotter")
 parser.add_argument("-i", "--inputfiles", dest="inputfiles", default=["ggtree_mc_dyJetsToLL.root"], nargs='*', help="List of input ggNtuplizer files")
 parser.add_argument("-o", "--outputfile", dest="outputfile", default="plotsZee.root", help="Output file containing plots")
@@ -11,9 +9,15 @@ parser.add_argument('--isMC',dest='isMC',action='store_true',default=False,help=
 parser.add_argument('--EBonly',dest='EBonly',action='store_true',default=False,help="Use only electron in barrel")
 parser.add_argument('--highR9',dest='highR9',action='store_true',default=False,help="Use only highR9 electron")
 parser.add_argument('--applyIDSF',dest='applyIDSF',action='store_true',default=False,help="Apply efficiency scale factors for ID to MC")
+parser.add_argument("--EleIDSF", dest="EleIDSF", default="/gpfs/ddn/cms/user/cmsdas/2019/EgammaExercise/egammaEffi.txt_EGM2D_runF_passingLoose94X.root",  help="Egamma2D SF root file")
 parser.add_argument("-t", "--ttree", dest="ttree", default="ggNtuplizer/EventTree", help="TTree Name")
 args = parser.parse_args()
 
+def getEleIDSF(ePt,eEta,sfH):
+    xbin=sfH.GetXaxis().FindBin(eEta)
+    ybin=sfH.GetYaxis().FindBin(ePt)
+    return sfH.GetBinContent(xbin,ybin)
+    
 import numpy as np
 import ROOT
 import os
@@ -44,6 +48,12 @@ for b in branches:
 
 print 'Total number of events: ' + str(tchain.GetEntries())
 
+if ( args.isMC and  args.applyIDSF ):
+    print ">>> Using EleIDSF from "+args.EleIDSF
+    f_SF = ROOT.TFile(args.EleIDSF)
+    EleID_2D_SF = f_SF.Get("EGamma_SF2D")
+    EleID_2D_SF.Print()
+
 #histograms we want
 histos = {}
 histos['h_nEle'] = ROOT.TH1D('h_nEle', 'Number of Electrons', 10 , -0.5, 9.5)
@@ -51,6 +61,10 @@ histos['h_nEle_passID'] = ROOT.TH1D('h_nEle_passID', 'Number of Electrons Passin
 histos['h_elec_pt'] = ROOT.TH1D('h_elec_pt', 'Electron p_{T}', 190, 10.0, 200.0)
 histos['h_elec_sigmaIEtaIEta'] = ROOT.TH1D('h_elec_sigmaIEtaIEta', 'Electron #sigma_{i#eta i#eta}', 100, 0.0, 0.1)
 histos['h_elec_zmass'] = ROOT.TH1D('h_elec_zmass', 'Z peak;Z Mass (GeV)', 140, 60.0, 130.0)
+
+for hn, histo in histos.iteritems():
+    if isinstance(histo,ROOT.TH1F):
+        histo.Sumw2()
 
 #Loop over all the events in the input ntuple
 for ievent,event in enumerate(tchain):
@@ -61,6 +75,7 @@ for ievent,event in enumerate(tchain):
 
     # Loop over all the electrons in an event
     goodEle=[]
+    weight=[]
     for i in range(event.nEle):
         if (event.elePt[i])<20: continue
         if (event.eleIDbit[i]&2)!=2: continue #Loose (94X) selection
@@ -69,11 +84,16 @@ for ievent,event in enumerate(tchain):
         if args.EBonly and abs(event.eleSCEta[i]) > 1.442: continue
         if args.highR9 and event.eleR9[i] < 0.94: continue
 
+        #get weight from scale factor if switch is ON
+        w=1
+        if (args.isMC and args.applyIDSF):
+            w=getEleIDSF(event.elePt[i],event.eleEta[i],EleID_2D_SF)
         #fill histograms for electrons passing selections
-        histos['h_elec_pt'].Fill(event.elePt[i])
-        histos['h_elec_sigmaIEtaIEta'].Fill(event.eleSigmaIEtaIEtaFull5x5[i])
+        histos['h_elec_pt'].Fill(event.elePt[i],w)
+        histos['h_elec_sigmaIEtaIEta'].Fill(event.eleSigmaIEtaIEtaFull5x5[i],w)
         goodEle.append(i)
-
+        weight.append(w)
+        
     histos['h_nEle_passID'].Fill(len(goodEle))
 
     if len(goodEle) < 2: 
@@ -84,7 +104,7 @@ for ievent,event in enumerate(tchain):
     sublead_ele_vec = ROOT.TLorentzVector()
     sublead_ele_vec.SetPtEtaPhiE(event.eleCalibPt[goodEle[1]], event.eleEta[goodEle[1]], event.elePhi[goodEle[1]], event.eleCalibEn[goodEle[1]])
     zmass = (lead_ele_vec + sublead_ele_vec).M()
-    histos['h_elec_zmass'].Fill(zmass)
+    histos['h_elec_zmass'].Fill(zmass,weight[0]*weight[1])
 
 # save histograms
 fOut=ROOT.TFile(args.outputfile,"RECREATE")
