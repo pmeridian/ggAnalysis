@@ -20,17 +20,17 @@ Test ntuples production: <br>
 cd ggAnalysis/ggNtuplizer/test/ <br>
 cmsRun run_data2017_94X.py <br>
 ```
-Some informations on stored IDs.<br>
+Some informations on stored IDs.<br> <br>
 eleID is stored in 64bit integer. Each bit represents the output of an ID selections<br>
 for ELECRON ID stores 5 official 94x ID outputs: 5 IDs (Veto, Loose, Medium, Tight and HEEP) so only 5 bits are imp for us (59 bits of this integer  we are not using so may be we can change that to 16 bit integer later)<br>
 Representing that integer in 5 bits: b4 b3 b2 b1 b0<br>
 b0: Veto; b1: Loose; b2: Medium; b3: Tight and b4: HEEP<br>
 To access the decision for <br>
-(a) veto: eleIDbit[]>>0&1 ---> gives 0 or 1. if 0--> this eID is failed. if 1--> this eID is passed<br>
-(b) Loose: eleIDbit[]>>1&1<br>
-(c) Medium: eleIDbit[]>>2&1<br>
-(d) Tight: eleIDbit[]>>3&1<br>
-(e) HEEP: eleIDbit[]>>4&1<br>
+   - (a) veto: eleIDbit[]>>0&1 ---> gives 0 or 1. if 0--> this eID is failed. if 1--> this eID is passed<br>
+   - (b) Loose: eleIDbit[]>>1&1<br>
+   - (c) Medium: eleIDbit[]>>2&1<br>
+   - (d) Tight: eleIDbit[]>>3&1<br>
+   - (e) HEEP: eleIDbit[]>>4&1<br>
 
 for photons it is done the same way: it has 3 IDs<br>
 so 3 bits represent the decision<br>
