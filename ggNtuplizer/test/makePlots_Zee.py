@@ -13,8 +13,9 @@ parser.add_argument("--EleIDSF", dest="EleIDSF", default="/gpfs/ddn/cms/user/cms
 parser.add_argument("-t", "--ttree", dest="ttree", default="ggNtuplizer/EventTree", help="TTree Name")
 args = parser.parse_args()
 
-def getEleIDSF(ePt,eEta,sfH):
-    xbin=sfH.GetXaxis().FindBin(eEta)
+
+def getEleIDSF(ePt,eSCEta,sfH):
+    xbin=sfH.GetXaxis().FindBin(eSCEta) #scale factors are parametrised using SCEta
     ybin=sfH.GetYaxis().FindBin(ePt)
     return sfH.GetBinContent(xbin,ybin)
     
@@ -48,6 +49,7 @@ for b in branches:
 
 print 'Total number of events: ' + str(tchain.GetEntries())
 
+#take SF 2D hisogram from input file
 if ( args.isMC and  args.applyIDSF ):
     print ">>> Using EleIDSF from "+args.EleIDSF
     f_SF = ROOT.TFile(args.EleIDSF)
@@ -56,12 +58,14 @@ if ( args.isMC and  args.applyIDSF ):
 
 #histograms we want
 histos = {}
-histos['h_nEle'] = ROOT.TH1D('h_nEle', 'Number of Electrons', 10 , -0.5, 9.5)
-histos['h_nEle_passID'] = ROOT.TH1D('h_nEle_passID', 'Number of Electrons Passing ID', 10 , -0.5, 9.5)
-histos['h_elec_pt'] = ROOT.TH1D('h_elec_pt', 'Electron p_{T}', 190, 10.0, 200.0)
-histos['h_elec_sigmaIEtaIEta'] = ROOT.TH1D('h_elec_sigmaIEtaIEta', 'Electron #sigma_{i#eta i#eta}', 100, 0.0, 0.1)
-histos['h_elec_zmass'] = ROOT.TH1D('h_elec_zmass', 'Z peak;Z Mass (GeV)', 140, 60.0, 130.0)
+histos['h_nEle']               = ROOT.TH1F('h_nEle', 'Number of Electrons', 10 , -0.5, 9.5)
+histos['h_nEle_passID']        = ROOT.TH1F('h_nEle_passID', 'Number of Electrons Passing ID', 10 , -0.5, 9.5)
+histos['h_elec_pt']            = ROOT.TH1F('h_elec_pt', 'Electron p_{T}', 190, 10.0, 200.0)
+histos['h_elec_eta']           = ROOT.TH1F('h_elec_pt', 'Electron #eta', 100, -2.5, 2.5)
+histos['h_elec_sigmaIEtaIEta'] = ROOT.TH1F('h_elec_sigmaIEtaIEta', 'Electron #sigma_{i#eta i#eta}', 100, 0.0, 0.1)
+histos['h_elec_zmass']         = ROOT.TH1F('h_elec_zmass', 'Z peak;Z Mass (GeV)', 140, 60.0, 130.0)
 
+#prepare histograms for application of weights
 for hn, histo in histos.iteritems():
     if isinstance(histo,ROOT.TH1F):
         histo.Sumw2()
@@ -78,18 +82,18 @@ for ievent,event in enumerate(tchain):
     weight=[]
     for i in range(event.nEle):
         if (event.elePt[i])<20: continue
-        if (event.eleIDbit[i]&2)!=2: continue #Loose (94X) selection
+        if (event.eleIDbit[i]>>1): continue #Loose (94X-V1) selection
         if abs(event.eleSCEta[i]) > 2.5: continue
-        if abs(event.eleSCEta[i]) > 1.442 and abs(event.eleSCEta[i])<1.566: continue
-        if args.EBonly and abs(event.eleSCEta[i]) > 1.442: continue
+        if abs(event.eleSCEta[i]) > 1.4442 and abs(event.eleSCEta[i])<1.566: continue
+        if args.EBonly and abs(event.eleSCEta[i]) > 1.4442: continue
         if args.highR9 and event.eleR9[i] < 0.94: continue
 
-        #get weight from scale factor if switch is ON
         w=1
-        if (args.isMC and args.applyIDSF):
-            w=getEleIDSF(event.elePt[i],event.eleEta[i],EleID_2D_SF)
+        if (args.isMC and args.applyIDSF): #get weight from scale factor if switch is ON
+            w=getEleIDSF(event.elePt[i],event.eleSCEta[i],EleID_2D_SF)
         #fill histograms for electrons passing selections
         histos['h_elec_pt'].Fill(event.elePt[i],w)
+        histos['h_elec_eta'].Fill(event.eleSCEta[i],w)
         histos['h_elec_sigmaIEtaIEta'].Fill(event.eleSigmaIEtaIEtaFull5x5[i],w)
         goodEle.append(i)
         weight.append(w)
@@ -111,9 +115,6 @@ fOut=ROOT.TFile(args.outputfile,"RECREATE")
 for hn, histo in histos.iteritems():
     if isinstance(histo,ROOT.TH1F):
         histo.SetMinimum(0.001) #allow log plot  
-    if isinstance(histo,ROOT.TGraphAsymmErrors): #efficiency 
-        histo.SetMinimum(0.)
-        histo.SetMaximum(1.1) 
     histo.Write()
 fOut.Close()
 print "Saved histos in "+args.outputfile
