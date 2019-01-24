@@ -73,7 +73,7 @@ histos = {}
 histos['h_nEle']               = ROOT.TH1F('h_nEle', 'Number of Electrons', 10 , -0.5, 9.5)
 histos['h_nEle_passID']        = ROOT.TH1F('h_nEle_passID', 'Number of Electrons Passing ID', 10 , -0.5, 9.5)
 histos['h_elec_pt']            = ROOT.TH1F('h_elec_pt', 'Electron p_{T}', 190, 10.0, 200.0)
-histos['h_elec_eta']           = ROOT.TH1F('h_elec_pt', 'Electron #eta', 100, -2.5, 2.5)
+histos['h_elec_eta']           = ROOT.TH1F('h_elec_eta', 'Electron #eta', 100, -2.5, 2.5)
 histos['h_elec_sigmaIEtaIEta'] = ROOT.TH1F('h_elec_sigmaIEtaIEta', 'Electron #sigma_{i#eta i#eta}', 100, 0.0, 0.1)
 histos['h_elec_zmass']         = ROOT.TH1F('h_elec_zmass', 'Z peak;Z Mass (GeV)', 140, 60.0, 130.0)
 
