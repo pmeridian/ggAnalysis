@@ -34,7 +34,7 @@ void fitter (TString filename = "plots.root", TString plotSuffix = "", float sta
   TString DataHistName = DataHist->GetName();
   DataHistName += "fit";
   RooDataHist data(DataHistName,DataHistName,mass,DataHist);
-  ResolutionModel.fitTo(data,Range(startmass-15,startmass+10));
+  ResolutionModel.fitTo(data,Range(startmass-20,startmass+15));
   RooPlot * plot = mass.frame();
   data.plotOn(plot);
   plot->SetMaximum(1.2*plot->GetMaximum());
@@ -43,7 +43,7 @@ void fitter (TString filename = "plots.root", TString plotSuffix = "", float sta
   TString PlotTitle(DataHist->GetTitle());
   PlotTitle += ";m_{ee} (GeV/c^{2});Number of Weighted Events";
   plot->SetTitle(PlotTitle);
-  plot->GetXaxis()->SetRangeUser(startmass-15,startmass+10);
+  plot->GetXaxis()->SetRangeUser(startmass-20,startmass+15);
   TPaveText *box = (TPaveText*) plot->findObject("Convolution_paramBox");
   box->SetTextSize(0.022);
   plot->Draw();

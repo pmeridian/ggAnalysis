@@ -18,6 +18,18 @@ def getEleIDSF(ePt,eSCEta,sfH):
     xbin=sfH.GetXaxis().FindBin(eSCEta) #scale factors are parametrised using SCEta
     ybin=sfH.GetYaxis().FindBin(ePt)
     return sfH.GetBinContent(xbin,ybin)
+
+
+def passEleID(eleIDbit,i):
+    #bit 0 cutBasedElectronID-Fall17-94X-V1-veto 
+    #bit 1 cutBasedElectronID-Fall17-94X-V1-loose 
+    #bit 2 cutBasedElectronID-Fall17-94X-V1-medium 
+    #bit 3 cutBasedElectronID-Fall17-94X-V1-tight 
+    #bit 4 HEEP V70
+    #bit 5 HLT
+    if (eleIDbit>>i&1): #checks the i-th bit of the eleID bit starting from the MSB
+        return True
+    return False 
     
 import numpy as np
 import ROOT
@@ -82,7 +94,7 @@ for ievent,event in enumerate(tchain):
     weight=[]
     for i in range(event.nEle):
         if (event.elePt[i])<20: continue
-        if (event.eleIDbit[i]>>1): continue #Loose (94X-V1) selection
+        if not passEleID(event.eleIDbit[i],1): continue #Loose (94X-V1) selection
         if abs(event.eleSCEta[i]) > 2.5: continue
         if abs(event.eleSCEta[i]) > 1.4442 and abs(event.eleSCEta[i])<1.566: continue
         if args.EBonly and abs(event.eleSCEta[i]) > 1.4442: continue
