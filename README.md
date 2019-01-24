@@ -3,17 +3,18 @@
 #### This version can be run using CMSSW_9_4_10
 
 ##### To work with CMSSW_9_4_10:
-cmsrel CMSSW_9_4_10 <br>
-cd CMSSW_9_4_10/src <br>
-cmsenv <br>
-git cms-init <br>
-git clone https://github.com/cmkuo/HiggsAnalysis.git <br>
-git clone -b cmsdas2019 https://github.com/pmeridian/ggAnalysis.git <br>
-git cms-merge-topic cms-egamma:EgammaPostRecoTools_940 <br>
-git cms-merge-topic cms-egamma:EgammaID_949 <br>
-git cms-merge-topic cms-met:METFixEE2017_949 <br>
-scram b -j 8 <br>
-
+```Shell
+cmsrel CMSSW_9_4_10
+cd CMSSW_9_4_10/src
+cmsenv
+git cms-init
+git clone https://github.com/cmkuo/HiggsAnalysis.git
+git clone -b cmsdas2019 https://github.com/pmeridian/ggAnalysis.git
+git cms-merge-topic cms-egamma:EgammaPostRecoTools_940
+git cms-merge-topic cms-egamma:EgammaID_949
+git cms-merge-topic cms-met:METFixEE2017_949
+scram b -j 8
+```
 Test ntuples production: <br>
 cd ggAnalysis/ggNtuplizer/test/ <br>
 cmsRun run_data2017_94X.py <br>
