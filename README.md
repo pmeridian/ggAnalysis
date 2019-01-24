@@ -17,8 +17,8 @@ scram b -j 8
 ```
 Test ntuples production: <br>
 ```Shell
-cd ggAnalysis/ggNtuplizer/test/ <br>
-cmsRun run_data2017_94X.py <br>
+cd ggAnalysis/ggNtuplizer/test/
+cmsRun run_2017_94x.py datasets=/DoubleEG/Run2017F-31Mar2018-v1/MINIAOD runs=306092 output=DoubleEG.root maxEvents=1000
 ```
 Some informations on stored IDs.<br> <br>
 eleID is stored in 64bit integer. Each bit represents the output of an ID selections<br>
