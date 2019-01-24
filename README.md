@@ -1,8 +1,4 @@
-#### Current production tag : 
-#### Newest tag for testing : 
 #### This version can be run using CMSSW_9_4_10
-
-##### To work with CMSSW_9_4_10:
 ```Shell
 cmsrel CMSSW_9_4_10
 cd CMSSW_9_4_10/src
